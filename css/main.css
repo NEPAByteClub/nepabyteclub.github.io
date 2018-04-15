@@ -1,7 +1,14 @@
 body {
-    background-color: black;
+    background-color: rgb(66, 133, 244);
 	 padding: 10px;
 	 margin: 10px;
+	 background-image: url("../img/bg-byte.png");
+	 font-family: 'Raleway', cursive;
+}
+
+.image-show {
+  box-shadow: 4px 4px 16px black;
+  border: 15px black;
 }
 
 #frontShow {
@@ -23,6 +30,38 @@ body {
 
 #fronttext {
 	padding: 20px;
-	color: white;
+	color: black;
 	
+}
+
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: black;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#aboutByteClub {
+		margin: 15px;
 }
