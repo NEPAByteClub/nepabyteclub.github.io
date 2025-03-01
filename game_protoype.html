@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Training Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+        .message {
+            font-size: 24px;
+            margin-top: 20px;
+            min-height: 30px; /* Prevents shifting when text appears */
+        }
+        .moving-box {
+            width: 50px;
+            height: 50px;
+            background-color: blue;
+            position: absolute;
+            top: 50px;
+            left: 0;
+        }
+        .robot {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        .indicator {
+            width: 300px;
+            height: 10px;
+            background-color: lightgray;
+            position: relative;
+            margin-top: 20px;
+        }
+        .success-marker {
+            width: 20px;
+            height: 10px;
+            background-color: red;
+            position: absolute;
+            left: 140px; /* Keep static in the center */
+        }
+        .game-container {
+            position: relative;
+            width: 300px;
+            height: 100px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .stats {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .trust-meter {
+            width: 200px;
+            height: 20px;
+            background-color: gray;
+            margin-top: 10px;
+            position: relative;
+        }
+        .trust-fill {
+            height: 100%;
+            width: 0;
+            background-color: green;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Training Game</h1>
+    <img src="robot.png" alt="Robot" class="robot">
+    <p id="robotMessage">Hello, human! I need your help calibrating my targeting system. Press the button when the box reaches the right position.</p>
+    <div class="indicator">
+        <div class="success-marker" id="successMarker"></div>
+    </div>
+    <div class="game-container">
+        <div class="moving-box" id="movingBox"></div>
+    </div>
+    <button id="actionButton">Calibrate</button>
+    <p class="message" id="message">&nbsp;</p> <!-- Prevent shifting by ensuring space -->
+    
+    <div class="stats">
+        <p>Trust Level:</p>
+        <div class="trust-meter">
+            <div class="trust-fill" id="trustFill"></div>
+        </div>
+        <p>Rank: <span id="rank">Untrained Human</span></p>
+    </div>
+
+    <script>
+        let box = document.getElementById("movingBox");
+        let button = document.getElementById("actionButton");
+        let message = document.getElementById("message");
+        let robotMessage = document.getElementById("robotMessage");
+        let trustFill = document.getElementById("trustFill");
+        let rankDisplay = document.getElementById("rank");
+        let successZone = Math.floor(Math.random() * 280) + 10; // Random success position within bounds
+        let position = 0;
+        let direction = 1;
+        let successCount = 0;
+        let trustLevel = 0;
+        const SUCCESS_THRESHOLD = 3; // Change zone after 3 successes
+
+        const ranks = [
+            "Untrained Human",
+            "Calibration Assistant",
+            "Optimization Specialist",
+            "Targeting Expert",
+            "Perfect Machine"
+        ];
+
+        function moveBox() {
+            position += direction * 2;
+            if (position >= 280 || position <= 0) direction *= -1; // Reverse direction within bounds
+            box.style.left = `${position}px`;
+            requestAnimationFrame(moveBox);
+        }
+        moveBox();
+
+        function updateTrustMeter() {
+            let percentage = (trustLevel / 100) * 200;
+            trustFill.style.width = `${percentage}px`;
+            rankDisplay.textContent = ranks[Math.min(Math.floor(trustLevel / 25), ranks.length - 1)];
+        }
+
+        button.addEventListener("click", function() {
+            let distance = Math.abs(position - successZone);
+            
+            if (distance < 20) {
+                message.textContent = "Good job.";
+                successCount++;
+                trustLevel = Math.min(trustLevel + 5, 100);
+                updateTrustMeter();
+                
+                if (successCount >= SUCCESS_THRESHOLD) {
+                    successZone = Math.floor(Math.random() * 280) + 10; // New success zone within bounds
+                    robotMessage.textContent = "Adjusting parameters... Keep going!";
+                    successCount = 0; // Reset count
+                } else {
+                    robotMessage.textContent = "Nice work! My targeting is improving.";
+                }
+            } else {
+                message.textContent = "Nope.";
+                trustLevel = Math.max(trustLevel - 3, 0);
+                updateTrustMeter();
+                
+                if (distance < 40) {
+                    robotMessage.textContent = "You're getting warmer...";
+                } else if (distance < 80) {
+                    robotMessage.textContent = "You're a bit cold...";
+                } else {
+                    robotMessage.textContent = "Freezing! Try again.";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
