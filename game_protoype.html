@@ -78,7 +78,7 @@
     </style>
 </head>
 <body>
-    <h1>AI Training Game v1.1</h1>
+    <h1>AI Training Game v1.2</h1>
     <img src="robot.png" alt="Robot" class="robot">
     <p id="robotMessage">Hello, human! I need your help calibrating my targeting system. Press the button when the correct box reaches the right position.</p>
     <div class="indicator">
@@ -154,6 +154,7 @@
             let distance = targetBox === "blue" ? Math.abs(positionBlue - successZone) : Math.abs(positionRed - successZone);
             
             if (distance < 20) {
+                robotMessage.textContent = "Hot! You've got it!";
                 message.textContent = "Good job.";
                 successCount++;
                 trustLevel = Math.min(trustLevel + 5, 100);
