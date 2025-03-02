@@ -22,10 +22,16 @@
         .moving-box {
             width: 50px;
             height: 50px;
-            background-color: blue;
             position: absolute;
             top: 50px;
+        }
+        .box-blue {
+            background-color: blue;
             left: 0;
+        }
+        .box-red {
+            background-color: red;
+            left: 250px;
         }
         .robot {
             width: 100px;
@@ -74,12 +80,13 @@
 <body>
     <h1>AI Training Game</h1>
     <img src="robot.png" alt="Robot" class="robot">
-    <p id="robotMessage">Hello, human! I need your help calibrating my targeting system. Press the button when the box reaches the right position.</p>
+    <p id="robotMessage">Hello, human! I need your help calibrating my targeting system. Press the button when the correct box reaches the right position.</p>
     <div class="indicator">
         <div class="success-marker" id="successMarker"></div>
     </div>
     <div class="game-container">
-        <div class="moving-box" id="movingBox"></div>
+        <div class="moving-box box-blue" id="movingBoxBlue"></div>
+        <div class="moving-box box-red" id="movingBoxRed"></div>
     </div>
     <button id="actionButton">Calibrate</button>
     <p class="message" id="message">&nbsp;</p> <!-- Prevent shifting by ensuring space -->
@@ -93,17 +100,23 @@
     </div>
 
     <script>
-        let box = document.getElementById("movingBox");
+        let boxBlue = document.getElementById("movingBoxBlue");
+        let boxRed = document.getElementById("movingBoxRed");
         let button = document.getElementById("actionButton");
         let message = document.getElementById("message");
         let robotMessage = document.getElementById("robotMessage");
         let trustFill = document.getElementById("trustFill");
         let rankDisplay = document.getElementById("rank");
         let successZone = Math.floor(Math.random() * 280) + 10; // Random success position within bounds
-        let position = 0;
-        let direction = 1;
+        let positionBlue = 0;
+        let positionRed = 250;
+        let directionBlue = 1;
+        let directionRed = -1;
         let successCount = 0;
         let trustLevel = 0;
+        let graceTries = 2;
+        let graceActive = false;
+        let targetBox = Math.random() > 0.5 ? "blue" : "red";
         const SUCCESS_THRESHOLD = 3; // Change zone after 3 successes
 
         const ranks = [
@@ -114,13 +127,16 @@
             "Perfect Machine"
         ];
 
-        function moveBox() {
-            position += direction * 2;
-            if (position >= 280 || position <= 0) direction *= -1; // Reverse direction within bounds
-            box.style.left = `${position}px`;
-            requestAnimationFrame(moveBox);
+        function moveBoxes() {
+            positionBlue += directionBlue * 2;
+            positionRed += directionRed * 2;
+            if (positionBlue >= 280 || positionBlue <= 0) directionBlue *= -1;
+            if (positionRed >= 280 || positionRed <= 0) directionRed *= -1;
+            boxBlue.style.left = `${positionBlue}px`;
+            boxRed.style.left = `${positionRed}px`;
+            requestAnimationFrame(moveBoxes);
         }
-        moveBox();
+        moveBoxes();
 
         function updateTrustMeter() {
             let percentage = (trustLevel / 100) * 200;
@@ -128,8 +144,13 @@
             rankDisplay.textContent = ranks[Math.min(Math.floor(trustLevel / 25), ranks.length - 1)];
         }
 
+        function switchTarget() {
+            targetBox = Math.random() > 0.5 ? "blue" : "red";
+            robotMessage.textContent = `Now calibrate using the ${targetBox.toUpperCase()} box!`;
+        }
+
         button.addEventListener("click", function() {
-            let distance = Math.abs(position - successZone);
+            let distance = targetBox === "blue" ? Math.abs(positionBlue - successZone) : Math.abs(positionRed - successZone);
             
             if (distance < 20) {
                 message.textContent = "Good job.";
@@ -138,23 +159,23 @@
                 updateTrustMeter();
                 
                 if (successCount >= SUCCESS_THRESHOLD) {
-                    successZone = Math.floor(Math.random() * 280) + 10; // New success zone within bounds
+                    successZone = Math.floor(Math.random() * 280) + 10;
                     robotMessage.textContent = "Adjusting parameters... Keep going!";
-                    successCount = 0; // Reset count
-                } else {
-                    robotMessage.textContent = "Nice work! My targeting is improving.";
+                    successCount = 0;
+                    graceActive = true;
+                    graceTries = 2;
+                    switchTarget();
                 }
             } else {
                 message.textContent = "Nope.";
-                trustLevel = Math.max(trustLevel - 3, 0);
-                updateTrustMeter();
                 
-                if (distance < 40) {
-                    robotMessage.textContent = "You're getting warmer...";
-                } else if (distance < 80) {
-                    robotMessage.textContent = "You're a bit cold...";
+                if (graceActive && graceTries > 0) {
+                    graceTries--;
+                    robotMessage.textContent = "Keep trying... You're learning.";
+                    if (graceTries === 0) graceActive = false;
                 } else {
-                    robotMessage.textContent = "Freezing! Try again.";
+                    trustLevel = Math.max(trustLevel - 3, 0);
+                    updateTrustMeter();
                 }
             }
         });
