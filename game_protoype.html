@@ -78,7 +78,7 @@
     </style>
 </head>
 <body>
-    <h1>AI Training Game</h1>
+    <h1>AI Training Game v1.1</h1>
     <img src="robot.png" alt="Robot" class="robot">
     <p id="robotMessage">Hello, human! I need your help calibrating my targeting system. Press the button when the correct box reaches the right position.</p>
     <div class="indicator">
@@ -117,6 +117,7 @@
         let graceTries = 2;
         let graceActive = false;
         let targetBox = Math.random() > 0.5 ? "blue" : "red";
+        robotMessage.textContent = `Start by calibrating the ${targetBox.toUpperCase()} box!`;
         const SUCCESS_THRESHOLD = 3; // Change zone after 3 successes
 
         const ranks = [
