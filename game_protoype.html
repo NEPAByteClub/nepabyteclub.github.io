@@ -169,9 +169,16 @@
             } else {
                 message.textContent = "Nope.";
                 
+                if (distance < 40) {
+                    robotMessage.textContent = "You're getting warmer...";
+                } else if (distance < 80) {
+                    robotMessage.textContent = "You're a bit cold...";
+                } else {
+                    robotMessage.textContent = "Freezing! Try again.";
+                }
+                
                 if (graceActive && graceTries > 0) {
                     graceTries--;
-                    robotMessage.textContent = "Keep trying... You're learning.";
                     if (graceTries === 0) graceActive = false;
                 } else {
                     trustLevel = Math.max(trustLevel - 3, 0);
